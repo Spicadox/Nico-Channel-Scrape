@@ -10,6 +10,8 @@ if __name__ == "__main__":
                 link = sys.argv[1]
         except:
             link = input("Link: ")
+        if link.startswith("'") and link.endswith("'") or link.startswith('"') and link.endswith('"'):
+            link = link[1:-1]
         if "/" not in link[-1]:
             link = link + "/"
         if not link.endswith("video"):
@@ -17,6 +19,9 @@ if __name__ == "__main__":
 
         req = requests.get(link)
         bsoup = BeautifulSoup(req.text, "html.parser")
+
+        channel_name = bsoup.find('h1', class_='channel_name').contents[0].text
+        print("Filename: ", f"{channel_name}_urls.txt")
 
         pagination = bsoup.find('li', class_='pages').contents[1]
         last_page = int(pagination.contents[len(pagination)-2].text)
@@ -48,7 +53,7 @@ if __name__ == "__main__":
                 except TypeError:
                     # print("Extra tag, Skipping...")
                     continue
-        with open('nicourls.txt', 'w') as file:
+        with open(f'{channel_name}_urls.txt', 'w') as file:
             for url in video_urls:
                 file.write(url + '\n')
         print(f"\nScraped {count}/{total_videos}")
